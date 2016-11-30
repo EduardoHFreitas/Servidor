@@ -1,36 +1,35 @@
 package br.univel.model;
 
+import javax.swing.JOptionPane;
+
 import br.univel.control.ObjectDao;
 import br.univel.model.dto.Cliente;
 import br.univel.model.enums.SQL;
+import br.univel.model.enums.Solicitacao;
 
-public class ProcessaRequisicaoCliente<T> {
-	private T objetoRetorno = null;
+public class ProcessaRequisicaoCliente {
+	private Object objetoRetorno = null;
 
-	public T processar(Object objeto) {
+	public Object processar(Object objeto) {
 
 		Cliente cliente = (Cliente) objeto;
 
 		if (validarCliente(cliente)) {
-			switch (cliente.getRequisicao().getValor()) {
-			case 1:
+			switch (cliente.getRequisicao()) {
+			case INCLUIR:
 				ObjectDao.getObjectDao().incluir(cliente);
-				objetoRetorno = (T) new String("Objeto incluido com sucesso!");
+				objetoRetorno = (Object) new String("Cliente incluido com sucesso!");
 				break;
-			case 2:
+			case ALTERAR:
 				ObjectDao.getObjectDao().alterar(cliente);
-				objetoRetorno = (T) new String("Objeto alterado com sucesso!");
+				objetoRetorno = (Object) new String("Cliente alterado com sucesso!");
 				break;
-			case 3:
-				objetoRetorno = (T) ObjectDao.getObjectDao()
-						.consultarByQuery(SQL.BUSCAR_CLIENTE.toString() + cliente.getIdCliente());
-				break;
-			case 4:
+			case EXCLUIR:
 				ObjectDao.getObjectDao().excluir(cliente);
-				objetoRetorno = (T) new String("Objeto excluido com sucesso!");
+				objetoRetorno = (Object) new String("Cliente excluido com sucesso!");
 				break;
-			case 5:
-				objetoRetorno = (T) ObjectDao.getObjectDao().listar(SQL.LISTAR_CLIENTES.toString());
+			case LISTAR:
+				objetoRetorno = (Object) ObjectDao.getObjectDao().listar(SQL.LISTAR_CLIENTES.getValor());
 				break;
 			default:
 				break;
@@ -41,10 +40,18 @@ public class ProcessaRequisicaoCliente<T> {
 	}
 
 	private boolean validarCliente(final Cliente cliente) {
-		if (cliente.getNomeCliente().isEmpty() || cliente.getDataNascimento().isEmpty()
-				|| cliente.getNumeroCPF().isEmpty() || cliente.getNumeroRG().isEmpty()) {
-			this.objetoRetorno = (T) new String("Todos os dados deve ser preenchidos!");
-			return false;
+		if (cliente.getRequisicao().equals(Solicitacao.ALTERAR)
+				|| cliente.getRequisicao().equals(Solicitacao.INCLUIR)) {
+			if (cliente.getNomeCliente().isEmpty() || cliente.getDataNascimento().isEmpty()
+					|| cliente.getNumeroCPF().isEmpty() || cliente.getNumeroRG().isEmpty()) {
+				this.objetoRetorno = (Object) new String("Todos os dados deve ser preenchidos!");
+				return false;
+			}
+		} else if (cliente.getRequisicao().equals(Solicitacao.EXCLUIR)) {
+			if (cliente.getIdCliente() == 0) {
+				this.objetoRetorno = (Object) new String("ID Obrigatorio!");
+				return false;
+			}
 		}
 		return true;
 	}

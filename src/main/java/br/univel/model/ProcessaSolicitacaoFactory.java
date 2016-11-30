@@ -4,16 +4,15 @@ import br.univel.control.HibernateUtil;
 import br.univel.model.dto.Cliente;
 import br.univel.model.dto.Profissional;
 
-public class ProcessaSolicitacao<T> {
+public class ProcessaSolicitacaoFactory {
 
-	public T processar(final T objeto) {
+	public Object processar(final Object objeto) {
 		HibernateUtil.getSession();
 		if (objeto.getClass().equals(Cliente.class)) {
-			return (T) new ProcessaRequisicaoCliente().processar(objeto);
+			return new ProcessaRequisicaoCliente().processar(objeto);
 		} else if (objeto.getClass().equals(Profissional.class)) {
-			return (T) new ProcessaRequisicaoProfissional().processar(objeto);
+			return new ProcessaRequisicaoProfissional().processar(objeto);
 		}
-
-		return (T) new Object();
+		return new Object();
 	}
 }

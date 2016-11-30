@@ -8,18 +8,25 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.io.IOException;
 
+import javax.management.RuntimeErrorException;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
+import br.univel.control.HibernateUtil;
 import br.univel.control.ServerHost;
+import br.univel.model.TempoVerificacaoSingleton;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class TelaInicial extends JFrame {
 	private JTextField tfTempo;
 	private JTextField textField;
 
 	public TelaInicial() {
+		HibernateUtil.getSession();
 
 		getContentPane().setFont(getContentPane().getFont().deriveFont(11f));
 		setBounds(100, 100, 300, 150);
@@ -65,6 +72,7 @@ public class TelaInicial extends JFrame {
 		getContentPane().add(lblTempoParaVerifica, gbc_lblTempoParaVerifica);
 
 		tfTempo = new JTextField();
+		tfTempo.setText("1");
 		GridBagConstraints gbc_tfTempo = new GridBagConstraints();
 		gbc_tfTempo.fill = GridBagConstraints.HORIZONTAL;
 		gbc_tfTempo.insets = new Insets(0, 0, 5, 5);
@@ -75,12 +83,34 @@ public class TelaInicial extends JFrame {
 		tfTempo.setColumns(10);
 
 		JButton btnReiniciar = new JButton("Reiniciar");
+		btnReiniciar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					ServerHost.getInstancia().shutdown();
+					ServerHost.getInstancia().start();
+				} catch (IOException e) {
+					JOptionPane.showMessageDialog(null, "Erro ao reiniciar servidor!");
+					throw new RuntimeException(e);
+				}
+			}
+		});
 		GridBagConstraints gbc_btnReiniciar = new GridBagConstraints();
 		gbc_btnReiniciar.insets = new Insets(0, 0, 5, 5);
 		gbc_btnReiniciar.anchor = GridBagConstraints.NORTHEAST;
 		gbc_btnReiniciar.gridx = 2;
 		gbc_btnReiniciar.gridy = 3;
 		getContentPane().add(btnReiniciar, gbc_btnReiniciar);
+
+		TempoVerificacaoSingleton.getInstancia().setTempoVerificacao(tempoVerificacao());
+	}
+
+	private Long tempoVerificacao() {
+		if (tfTempo.getText().matches("^[0-9]*$")) {
+			return Long.parseLong(tfTempo.getText());
+		} else {
+			tfTempo.setText("1");
+			return 1L;
+		}
 	}
 
 	public static void main(String[] args) {
@@ -92,7 +122,7 @@ public class TelaInicial extends JFrame {
 			}
 		});
 		try {
-			new ServerHost().IniciarServidor();
+			ServerHost.getInstancia().start();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

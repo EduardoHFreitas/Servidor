@@ -2,10 +2,11 @@ package br.univel.model.enums;
 
 public enum SQL {
 
-	LISTAR_CLIENTES("select * from cliente"),
-	LISTAR_PROFISSIONAIS("select * from profissional"),
-	BUSCAR_CLIENTE("select * from cliente where cli_idCliente = "),
-	BUSCAR_PROFISSIONAL("select * from profissional where pro_idProfissional = ");
+	LISTAR_CLIENTES("from Cliente"),
+	LISTAR_PROFISSIONAIS("from Profissional"),
+	BUSCAR_CLIENTE("from Cliente where cli_idCliente = "),
+	BUSCAR_PROFISSIONAL("from Profissional where pro_idProfissional = "),
+	BUSCAR_LOGIN("from Profissional where ");
 
 	private String valor;
 
@@ -13,7 +14,7 @@ public enum SQL {
 		this.valor = valor;
 	}
 
-	private String getValor(){
+	public String getValor(){
 		return valor;
 	}
 }

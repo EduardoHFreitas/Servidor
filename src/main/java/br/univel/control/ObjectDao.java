@@ -66,10 +66,7 @@ public class ObjectDao {
 		List<Object> list = new ArrayList<>();
 		try {
 			session = HibernateUtil.getSession();
-			list = session.createQuery(parameterQuery).list();
-			for (Object retorno : list) {
-				return retorno;
-			}
+			return session.createQuery(parameterQuery).uniqueResult();
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

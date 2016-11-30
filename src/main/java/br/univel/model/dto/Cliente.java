@@ -21,6 +21,11 @@ import br.univel.model.enums.Solicitacao;
 @Table(name = "cliente")
 public class Cliente implements Serializable {
 
+	/**
+	 * Serial version
+	 */
+	private static final long serialVersionUID = 1L;
+
 	@Id
 	@GeneratedValue
 	@Column(name = "cli_idCliente", columnDefinition = "serial")
@@ -52,8 +57,9 @@ public class Cliente implements Serializable {
 	 * @param idCliente
 	 *            the idCliente to set
 	 */
-	public void setIdCliente(Integer idCliente) {
+	public Cliente setIdCliente(Integer idCliente) {
 		this.idCliente = idCliente;
+		return this;
 	}
 
 	/**
