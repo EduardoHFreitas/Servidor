@@ -5,5 +5,6 @@ public enum Solicitacao {
 	ALTERAR,
 	EXCLUIR,
 	LISTAR,
-	LOGIN;
+	LOGIN,
+	PING;
 }

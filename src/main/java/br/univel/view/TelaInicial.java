@@ -7,6 +7,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.io.IOException;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.management.RuntimeErrorException;
 import javax.swing.JButton;
@@ -21,12 +23,13 @@ import br.univel.model.TempoVerificacaoSingleton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public class TelaInicial extends JFrame {
+public class TelaInicial extends JFrame implements Observer{
 	private JTextField tfTempo;
 	private JTextField textField;
 
 	public TelaInicial() {
 		HibernateUtil.getSession();
+		ServerHost.getInstancia().addObserver(this);
 
 		getContentPane().setFont(getContentPane().getFont().deriveFont(11f));
 		setBounds(100, 100, 300, 150);
@@ -85,13 +88,7 @@ public class TelaInicial extends JFrame {
 		JButton btnReiniciar = new JButton("Reiniciar");
 		btnReiniciar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				try {
-					ServerHost.getInstancia().shutdown();
-					ServerHost.getInstancia().start();
-				} catch (IOException e) {
-					JOptionPane.showMessageDialog(null, "Erro ao reiniciar servidor!");
-					throw new RuntimeException(e);
-				}
+				ServerHost.getInstancia().reiniciar();
 			}
 		});
 		GridBagConstraints gbc_btnReiniciar = new GridBagConstraints();
@@ -125,6 +122,16 @@ public class TelaInicial extends JFrame {
 			ServerHost.getInstancia().start();
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+
+	}
+
+	@Override
+	public void update(Observable o, Object arg) {
+		if (!ServerHost.getInstancia().getServidor().isClosed()){
+			textField.setBackground(Color.GREEN);
+		} else {
+			textField.setBackground(Color.RED);
 		}
 
 	}

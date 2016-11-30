@@ -7,32 +7,46 @@ import java.util.Observable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JOptionPane;
 
 import br.univel.model.TempoVerificacaoSingleton;
 
-public class ServerHost extends Observable{
+/**
+ * Criar um Servidor socket
+ *
+ * @author Eduardo
+ *
+ */
+public class ServerHost extends Observable {
 	private static ServerHost instancia;
+
 	private final ExecutorService pool = Executors.newFixedThreadPool(10);
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-	private ServerSocket servidor;
 
-	private ServerHost () {}
+	private ServerSocket servidor;
+	private ScheduledFuture<?> schedule;
+
+	private ServerHost() {
+	}
 
 	public void criarSocket() {
 		try {
 			setServidor(new ServerSocket(5000));
 			while (!getServidor().isClosed()) {
 				Socket conexao = null;
+				setChanged();
+				notifyObservers();
 				conexao = getServidor().accept();
+				System.out.println("Nova conexão...");
 				pool.submit(new EntradaDados(conexao));
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} finally {
-			pool.shutdown();
+			executor.shutdown();
 			try {
 				if (getServidor() != null) {
 					getServidor().close();
@@ -45,20 +59,29 @@ public class ServerHost extends Observable{
 	}
 
 	public void start() throws IOException {
-
-		this.executor.scheduleAtFixedRate(new Runnable() {
+		new Thread(() -> {
+			criarSocket();
+		}).start();
+		schedule = this.executor.scheduleAtFixedRate(new Runnable() {
 
 			@Override
 			public void run() {
-				criarSocket();
+				System.out.println("Iniciando servidor!");
+				System.out.println("Executando verificação");
+
+				PingServer.testarConexao();
 			}
 		}, 0, TempoVerificacaoSingleton.getInstancia().getTempoVerificacao(), TimeUnit.SECONDS);
 	}
 
-	public void shutdown(){
+	public void reiniciar() {
 		if (getServidor() != null && !getServidor().isClosed()) {
 			try {
+				schedule.cancel(true);
 				getServidor().close();
+				setChanged();
+				notifyObservers();
+				start();
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -77,11 +100,10 @@ public class ServerHost extends Observable{
 	 * @return the instancia
 	 */
 	public static synchronized ServerHost getInstancia() {
-		if (instancia == null){
+		if (instancia == null) {
 			instancia = new ServerHost();
 		}
 		return instancia;
 	}
-
 
 }

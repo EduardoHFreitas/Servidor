@@ -7,8 +7,16 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import javax.swing.JOptionPane;
+
 import br.univel.model.ProcessaSolicitacaoFactory;
 
+/**
+ * Realiza a leitura e escrita
+ *
+ * @author Eduardo
+ *
+ */
 public class EntradaDados implements Runnable {
 
 	private final Socket connection;
@@ -19,22 +27,13 @@ public class EntradaDados implements Runnable {
 
 	@Override
 	public void run() {
-		InputStream input;
-		ObjectInputStream objInput = null;
-		OutputStream output;
-		ObjectOutputStream objOutput = null;
 		Object objetoRetorno = null;
 
-		try {
-			input = this.connection.getInputStream();
-			objInput = new ObjectInputStream(input);
-			output = this.connection.getOutputStream();
-			objOutput = new ObjectOutputStream(output);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
+		try (InputStream input = this.connection.getInputStream();
+				ObjectInputStream objInput = new ObjectInputStream(input);
+				OutputStream output = this.connection.getOutputStream();
+				ObjectOutputStream objOutput = new ObjectOutputStream(output)) {
 
-		try {
 			Object object = (Object) objInput.readObject();
 			ProcessaSolicitacaoFactory processador = new ProcessaSolicitacaoFactory();
 
