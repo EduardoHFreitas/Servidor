@@ -5,10 +5,22 @@ import br.univel.model.dto.Profissional;
 import br.univel.model.enums.SQL;
 import br.univel.model.enums.Solicitacao;
 
+/**
+ * Processa a requisicao de Profissional
+ *
+ * @author Eduardo
+ *
+ */
 public class ProcessaRequisicaoProfissional {
-	private Object objetoRetorno = null;
+	private Object objetoRetorno;
 
-	public Object processar(Object objeto) {
+	/**
+	 * metodo para processar a request
+	 *
+	 * @param objeto
+	 * @return
+	 */
+	public Object processar(final Object objeto) {
 
 		Profissional profissional = (Profissional) objeto;
 
@@ -41,25 +53,49 @@ public class ProcessaRequisicaoProfissional {
 		return objetoRetorno;
 	}
 
-	private boolean validarProfissional(Profissional profissional) {
-		if (profissional.getRequisicao().equals(Solicitacao.ALTERAR)
-				|| profissional.getRequisicao().equals(Solicitacao.INCLUIR)) {
-			if (profissional.getNomeProfissional().isEmpty() || profissional.getDataNascimento().isEmpty()
-					|| profissional.getLogin().isEmpty() || profissional.getSenha().isEmpty()) {
-				this.objetoRetorno = (Object) new String("Todos os dados deve ser preenchidos!");
-				return false;
-			}
-		} else if (profissional.getRequisicao().equals(Solicitacao.EXCLUIR)) {
-			if (profissional.getIdProfissional() == 0) {
-				this.objetoRetorno = (Object) new String("ID Obrigatorio!");
-				return false;
-			}
-		} else if (profissional.getRequisicao().equals(Solicitacao.LOGIN)) {
-			if (profissional.getLogin().isEmpty() || profissional.getSenha().isEmpty()) {
-				this.objetoRetorno = (Object) new String("Login e senha obrigatorios!");
-				return false;
-			}
+	private boolean validarProfissional(final Profissional profissional) {
+		boolean retorno = true;
+		if (validarAlterarIncluir(profissional)) {
+			retorno = false;
 		}
-		return true;
+		if (validarExcluir(profissional)) {
+			retorno = false;
+		}
+
+		if (validarLogin(profissional)) {
+			retorno = false;
+		}
+		return retorno;
+	}
+
+	private boolean validarLogin(final Profissional profissional) {
+		boolean retorno = true;
+		if (profissional.getRequisicao().equals(Solicitacao.LOGIN)
+				&& (profissional.getLogin().isEmpty() || profissional.getSenha().isEmpty())) {
+			this.objetoRetorno = (Object) new String("Login e senha obrigatorios!");
+			retorno = false;
+		}
+		return retorno;
+	}
+
+	private boolean validarExcluir(final Profissional profissional) {
+		boolean retorno = true;
+		if (profissional.getRequisicao().equals(Solicitacao.EXCLUIR) && profissional.getIdProfissional() == 0) {
+			this.objetoRetorno = (Object) new String("ID Obrigatorio!");
+			retorno = false;
+		}
+		return retorno;
+	}
+
+	private boolean validarAlterarIncluir(final Profissional profissional) {
+		boolean retorno = true;
+		if ((profissional.getRequisicao().equals(Solicitacao.ALTERAR)
+				|| profissional.getRequisicao().equals(Solicitacao.INCLUIR))
+				&& (profissional.getNomeProfissional().isEmpty() || profissional.getDataNascimento().isEmpty()
+						|| profissional.getLogin().isEmpty() || profissional.getSenha().isEmpty())) {
+			this.objetoRetorno = (Object) new String("Todos os dados deve ser preenchidos!");
+			retorno = false;
+		}
+		return retorno;
 	}
 }

@@ -23,10 +23,18 @@ import br.univel.model.TempoVerificacaoSingleton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
+/**
+ * Tela inicial do processo
+ * @author Eduardo
+ *
+ */
 public class TelaInicial extends JFrame implements Observer{
 	private JTextField tfTempo;
 	private JTextField textField;
 
+	/**
+	 * Construtor da tela
+	 */
 	public TelaInicial() {
 		HibernateUtil.getSession();
 		ServerHost.getInstancia().addObserver(this);
@@ -110,6 +118,10 @@ public class TelaInicial extends JFrame implements Observer{
 		}
 	}
 
+	/**
+	 * metodo main da classe
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -126,6 +138,9 @@ public class TelaInicial extends JFrame implements Observer{
 
 	}
 
+	/**
+	 * Observer do status
+	 */
 	@Override
 	public void update(Observable o, Object arg) {
 		if (!ServerHost.getInstancia().getServidor().isClosed()){

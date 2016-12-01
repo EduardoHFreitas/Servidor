@@ -44,7 +44,7 @@ public class Cliente implements Serializable {
 	private String numeroRG;
 
 	@Transient
-	private Solicitacao Requisicao;
+	private Solicitacao requisicao;
 
 	/**
 	 * @return the idCliente
@@ -57,7 +57,7 @@ public class Cliente implements Serializable {
 	 * @param idCliente
 	 *            the idCliente to set
 	 */
-	public Cliente setIdCliente(Integer idCliente) {
+	public Cliente setIdCliente(final Integer idCliente) {
 		this.idCliente = idCliente;
 		return this;
 	}
@@ -146,15 +146,15 @@ public class Cliente implements Serializable {
 	 * @return the requisicao
 	 */
 	public Solicitacao getRequisicao() {
-		return Requisicao;
+		return requisicao;
 	}
 
 	/**
 	 * @param requisicao
 	 *            the requisicao to set
 	 */
-	public Cliente setRequisicao(Solicitacao requisicao) {
-		Requisicao = requisicao;
+	public Cliente setRequisicao(final Solicitacao requisicao) {
+		this.requisicao = requisicao;
 		return this;
 	}
 

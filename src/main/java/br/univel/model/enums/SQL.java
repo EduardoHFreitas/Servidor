@@ -10,10 +10,14 @@ public enum SQL {
 
 	private String valor;
 
-	private SQL (String valor){
+	private SQL (final String valor){
 		this.valor = valor;
 	}
 
+	/**
+	 * Retorna o valor da enum
+	 * @return
+	 */
 	public String getValor(){
 		return valor;
 	}
