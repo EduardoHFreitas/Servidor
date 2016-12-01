@@ -7,8 +7,6 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
-import javax.swing.JOptionPane;
-
 import br.univel.model.ProcessaSolicitacaoFactory;
 
 /**
@@ -21,10 +19,19 @@ public class EntradaDados implements Runnable {
 
 	private final Socket connection;
 
+	/**
+	 *
+	 * Construtor
+	 *
+	 * @param connection
+	 */
 	public EntradaDados(final Socket connection) {
 		this.connection = connection;
 	}
 
+	/**
+	 * Metodo executor da thread
+	 */
 	@Override
 	public void run() {
 		Object objetoRetorno = null;
@@ -42,14 +49,19 @@ public class EntradaDados implements Runnable {
 			objOutput.writeObject(objetoRetorno);
 			objOutput.flush();
 		} catch (IOException | ClassNotFoundException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		} finally {
-			if (!this.connection.isClosed()) {
-				try {
-					this.connection.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+
+			closeConnection();
+		}
+	}
+
+	private void closeConnection() {
+		if (!this.connection.isClosed()) {
+			try {
+				this.connection.close();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
 			}
 		}
 	}

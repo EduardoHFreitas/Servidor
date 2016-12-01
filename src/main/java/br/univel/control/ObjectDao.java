@@ -5,22 +5,47 @@ import java.util.List;
 
 import org.hibernate.Session;
 
-public class ObjectDao {
+/**
+ * Dao de objetos do hibernate
+ *
+ * @author Eduardo
+ *
+ */
+public final class ObjectDao {
 	private static Session session;
-	private static ObjectDao objectDao;
+	private static ObjectDao objetoDao;
 
-	public static ObjectDao getObjectDao() {
-		if (objectDao == null) {
-			objectDao = new ObjectDao();
-		}
-		return objectDao;
+	private ObjectDao() {
+
 	}
 
+	/**
+	 * Singleton do DAO
+	 *
+	 * @return
+	 */
+	public static synchronized ObjectDao getObjectDao() {
+		if (objetoDao == null) {
+			objetoDao = new ObjectDao();
+		}
+		return objetoDao;
+	}
+
+	/**
+	 * Retorna a session
+	 *
+	 * @return
+	 */
 	public static Session getSession() {
 		return session;
 	}
 
-	public void incluir(Object objetoDao) {
+	/**
+	 * incluir objeto
+	 *
+	 * @param objetoDao
+	 */
+	public void incluir(final Object objetoDao) {
 		try {
 			session = HibernateUtil.getSession();
 			session.beginTransaction();
@@ -28,13 +53,18 @@ public class ObjectDao {
 			session.getTransaction().commit();
 		} catch (Exception e) {
 			session.getTransaction().rollback();
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		} finally {
 			session.close();
 		}
 	}
 
-	public void alterar(Object objetoDao) {
+	/**
+	 * Alterar objeto
+	 *
+	 * @param objetoDao
+	 */
+	public void alterar(final Object objetoDao) {
 		try {
 			session = HibernateUtil.getSession();
 			session.beginTransaction();
@@ -42,13 +72,18 @@ public class ObjectDao {
 			session.getTransaction().commit();
 		} catch (Exception e) {
 			session.getTransaction().rollback();
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		} finally {
 			session.close();
 		}
 	}
 
-	public void excluir(Object objetoDao) {
+	/**
+	 * excluir objeto
+	 *
+	 * @param objetoDao
+	 */
+	public void excluir(final Object objetoDao) {
 		try {
 			session = HibernateUtil.getSession();
 			session.beginTransaction();
@@ -56,33 +91,44 @@ public class ObjectDao {
 			session.getTransaction().commit();
 		} catch (Exception e) {
 			session.getTransaction().rollback();
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		} finally {
 			session.close();
 		}
 	}
 
-	public static Object consultarByQuery(String parameterQuery) {
-		List<Object> list = new ArrayList<>();
+	/**
+	 * executar uma query
+	 *
+	 * @param parameterQuery
+	 * @return
+	 */
+	public static Object consultarByQuery(final String parameterQuery) {
+		Object objeto = null;
 		try {
 			session = HibernateUtil.getSession();
-			return session.createQuery(parameterQuery).uniqueResult();
+			objeto = session.createQuery(parameterQuery).uniqueResult();
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		} finally {
 			session.close();
 		}
-		return null;
+		return objeto;
 	}
 
-	public static List<?> listar(String parameterQuery) {
+	/**
+	 * executar uma query
+	 *
+	 * @param parameterQuery
+	 * @return
+	 */
+	public static List<?> listar(final String parameterQuery) {
 		List<Object> lista = new ArrayList<Object>();
 		try {
 			session = HibernateUtil.getSession();
 			lista = session.createQuery(parameterQuery).list();
-			return lista;
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		} finally {
 			session.close();
 		}

@@ -6,12 +6,25 @@ import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
-public class HibernateUtil {
-
+/**
+ * Carregar hibernate
+ *
+ * @author Eduardo
+ *
+ */
+public final class HibernateUtil {
 	private static SessionFactory sessionFactory;
 	private static StandardServiceRegistry registry;
 
-	/* Build */
+	private HibernateUtil() {
+
+	}
+
+	/**
+	 * criando sessao hibernate
+	 *
+	 * @return
+	 */
 	private static SessionFactory buildSessionFactory() {
 
 		registry = new StandardServiceRegistryBuilder().configure().build();
@@ -20,21 +33,27 @@ public class HibernateUtil {
 		try {
 			sessionFactory = new MetadataSources(registry).buildMetadata().buildSessionFactory();
 		} catch (Exception e) {
-			e.printStackTrace();
 			StandardServiceRegistryBuilder.destroy(registry);
+			throw new RuntimeException(e);
 		}
 		return sessionFactory;
 	}
 
-	/* Metodo Get */
-	public static Session getSession() {
-		if (sessionFactory == null){
+	/**
+	 * get do singleton
+	 *
+	 * @return
+	 */
+	public static synchronized Session getSession() {
+		if (sessionFactory == null) {
 			sessionFactory = buildSessionFactory();
 		}
 		return sessionFactory.openSession();
 	}
 
-	/* Destruir Sessao */
+	/**
+	 * Destruir sessao do hibernate
+	 */
 	public static void killSession() {
 		StandardServiceRegistryBuilder.destroy(registry);
 	}

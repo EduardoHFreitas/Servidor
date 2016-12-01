@@ -20,18 +20,21 @@ import br.univel.model.TempoVerificacaoSingleton;
  * @author Eduardo
  *
  */
-public class ServerHost extends Observable {
+public final class ServerHost extends Observable {
 	private static ServerHost instancia;
 
 	private final ExecutorService pool = Executors.newFixedThreadPool(10);
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
 	private ServerSocket servidor;
-	private ScheduledFuture<?> schedule;
+	public ScheduledFuture<?> schedule;
 
 	private ServerHost() {
 	}
 
+	/**
+	 * Cria o socket
+	 */
 	public void criarSocket() {
 		try {
 			setServidor(new ServerSocket(5000));
@@ -40,40 +43,54 @@ public class ServerHost extends Observable {
 				setChanged();
 				notifyObservers();
 				conexao = getServidor().accept();
-				System.out.println("Nova conexão...");
 				pool.submit(new EntradaDados(conexao));
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} finally {
-			executor.shutdown();
-			try {
-				if (getServidor() != null) {
-					getServidor().close();
-				}
-			} catch (IOException e) {
-				JOptionPane.showMessageDialog(null, "Erro fechar conexao com o servidor!");
-				throw new RuntimeException(e);
-			}
+			desligarServidor();
 		}
 	}
 
+	/**
+	 * fechar conexao servidor
+	 */
+	private void desligarServidor() {
+		executor.shutdown();
+		try {
+			if (getServidor() != null) {
+				getServidor().close();
+			}
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(null, "Erro fechar conexao com o servidor!");
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * Startar thread
+	 *
+	 * @throws IOException
+	 */
 	public void start() throws IOException {
 		new Thread(() -> {
 			criarSocket();
 		}).start();
 		schedule = this.executor.scheduleAtFixedRate(new Runnable() {
 
+			/**
+			 * Executor da classe
+			 */
 			@Override
 			public void run() {
-				System.out.println("Iniciando servidor!");
-				System.out.println("Executando verificação");
-
 				PingServer.testarConexao();
 			}
 		}, 0, TempoVerificacaoSingleton.getInstancia().getTempoVerificacao(), TimeUnit.SECONDS);
 	}
 
+	/**
+	 * Reiniciar servidor
+	 */
 	public void reiniciar() {
 		if (getServidor() != null && !getServidor().isClosed()) {
 			try {
@@ -88,11 +105,21 @@ public class ServerHost extends Observable {
 		}
 	}
 
+	/**
+	 * Retornar atributo da classe
+	 *
+	 * @return
+	 */
 	public ServerSocket getServidor() {
 		return servidor;
 	}
 
-	public void setServidor(ServerSocket servidor) {
+	/**
+	 * Setar servidor ao atributo
+	 *
+	 * @param servidor
+	 */
+	public void setServidor(final ServerSocket servidor) {
 		this.servidor = servidor;
 	}
 
